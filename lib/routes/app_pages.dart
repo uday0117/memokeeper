@@ -4,8 +4,8 @@ import '../modules/add_note/add_note_binding.dart';
 import '../modules/add_note/add_note_view.dart';
 import '../modules/home/home_binding.dart';
 import '../modules/home/home_view.dart';
-import '../modules/settings/settings_binding.dart';
-import '../modules/settings/settings_view.dart';
+import '../modules/onboarding/onboarding_binding.dart';
+import '../modules/onboarding/onboarding_view.dart';
 import '../modules/splash/splash_binding.dart';
 import '../modules/splash/splash_view.dart';
 import 'app_routes.dart';
@@ -19,6 +19,12 @@ class AppPages {
       name: AppRoutes.splash,
       page: () => const SplashView(),
       binding: SplashBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: AppRoutes.onboarding,
+      page: () => const OnboardingView(),
+      binding: OnboardingBinding(),
       transition: Transition.fadeIn,
     ),
     GetPage(
@@ -37,12 +43,6 @@ class AppPages {
       name: AppRoutes.editNote,
       page: () => const AddNoteView(),
       binding: AddNoteBinding(),
-      transition: Transition.rightToLeft,
-    ),
-    GetPage(
-      name: AppRoutes.settings,
-      page: () => const SettingsView(),
-      binding: SettingsBinding(),
       transition: Transition.rightToLeft,
     ),
   ];

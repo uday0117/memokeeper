@@ -24,13 +24,16 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       updatedAt: fields[4] as DateTime,
       isPinned: fields[5] as bool,
       reminderDate: fields[6] as DateTime?,
+      category: fields[7] as String?,
+      tags: (fields[8] as List?)?.cast<String>(),
+      colorCode: fields[9] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, NoteModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +47,13 @@ class NoteModelAdapter extends TypeAdapter<NoteModel> {
       ..writeByte(5)
       ..write(obj.isPinned)
       ..writeByte(6)
-      ..write(obj.reminderDate);
+      ..write(obj.reminderDate)
+      ..writeByte(7)
+      ..write(obj.category)
+      ..writeByte(8)
+      ..write(obj.tags)
+      ..writeByte(9)
+      ..write(obj.colorCode);
   }
 
   @override

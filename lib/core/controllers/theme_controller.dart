@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-import '../../core/constants/app_constants.dart';
+import '../constants/app_constants.dart';
 
-/// Settings/Theme controller
-class SettingsController extends GetxController {
+/// Theme controller for managing app theme
+class ThemeController extends GetxController {
   final GetStorage _storage = GetStorage();
 
   // Observable for dark mode
@@ -28,10 +28,4 @@ class SettingsController extends GetxController {
     await _storage.write(AppConstants.isDarkModeKey, isDarkMode.value);
     Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
-
-  /// Get app version
-  String get appVersion => AppConstants.appVersion;
-
-  /// Get app name
-  String get appName => AppConstants.appName;
 }

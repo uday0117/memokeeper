@@ -26,6 +26,15 @@ class NoteModel extends HiveObject {
   @HiveField(6)
   DateTime? reminderDate;
 
+  @HiveField(7)
+  String? category;
+
+  @HiveField(8)
+  List<String>? tags;
+
+  @HiveField(9)
+  int? colorCode;
+
   NoteModel({
     required this.id,
     required this.title,
@@ -34,6 +43,9 @@ class NoteModel extends HiveObject {
     required this.updatedAt,
     this.isPinned = false,
     this.reminderDate,
+    this.category,
+    this.tags,
+    this.colorCode,
   });
 
   /// Create a copy of note with updated fields
@@ -45,6 +57,9 @@ class NoteModel extends HiveObject {
     DateTime? updatedAt,
     bool? isPinned,
     DateTime? reminderDate,
+    String? category,
+    List<String>? tags,
+    int? colorCode,
   }) {
     return NoteModel(
       id: id ?? this.id,
@@ -54,6 +69,9 @@ class NoteModel extends HiveObject {
       updatedAt: updatedAt ?? this.updatedAt,
       isPinned: isPinned ?? this.isPinned,
       reminderDate: reminderDate ?? this.reminderDate,
+      category: category ?? this.category,
+      tags: tags ?? this.tags,
+      colorCode: colorCode ?? this.colorCode,
     );
   }
 
@@ -67,6 +85,9 @@ class NoteModel extends HiveObject {
       'updatedAt': updatedAt.toIso8601String(),
       'isPinned': isPinned,
       'reminderDate': reminderDate?.toIso8601String(),
+      'category': category,
+      'tags': tags,
+      'colorCode': colorCode,
     };
   }
 
@@ -82,6 +103,9 @@ class NoteModel extends HiveObject {
       reminderDate: json['reminderDate'] != null
           ? DateTime.parse(json['reminderDate'])
           : null,
+      category: json['category'],
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : null,
+      colorCode: json['colorCode'],
     );
   }
 }

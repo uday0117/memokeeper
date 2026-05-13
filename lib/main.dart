@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import 'core/constants/app_constants.dart';
+import 'core/controllers/theme_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'data/services/hive_service.dart';
 import 'data/services/notification_service.dart';
@@ -22,6 +23,9 @@ void main() async {
 
     // Initialize notification service
     await NotificationService().init();
+
+    // Initialize theme controller early
+    Get.put(ThemeController());
 
     // Set preferred orientations
     await SystemChrome.setPreferredOrientations([

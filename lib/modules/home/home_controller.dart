@@ -16,6 +16,9 @@ class HomeController extends GetxController {
   // Search query
   final RxString searchQuery = ''.obs;
 
+  // Selected category filter
+  final Rxn<String> selectedCategory = Rxn<String>();
+
   // Loading state
   final RxBool isLoading = false.obs;
 
@@ -54,16 +57,51 @@ class HomeController extends GetxController {
   /// Search notes
   void searchNotes(String query) {
     searchQuery.value = query;
+    _applyFilters();
+  }
 
-    if (query.isEmpty) {
-      filteredNotes.value = allNotes;
-    } else {
-      final lowercaseQuery = query.toLowerCase();
-      filteredNotes.value = allNotes.where((note) {
+  /// Filter by category
+  void filterByCategory(String? category) {
+    selectedCategory.value = category;
+    _applyFilters();
+  }
+
+  /// Apply all filters (search + category)
+  void _applyFilters() {
+    List<NoteModel> notes = allNotes;
+
+    // Apply category filter
+    if (selectedCategory.value != null) {
+      notes = notes
+          .where((note) => note.category == selectedCategory.value)
+          .toList();
+    }
+
+    // Apply search filter
+    if (searchQuery.value.isNotEmpty) {
+      final lowercaseQuery = searchQuery.value.toLowerCase();
+      notes = notes.where((note) {
         return note.title.toLowerCase().contains(lowercaseQuery) ||
-            note.content.toLowerCase().contains(lowercaseQuery);
+            note.content.toLowerCase().contains(lowercaseQuery) ||
+            (note.tags?.any(
+                  (tag) => tag.toLowerCase().contains(lowercaseQuery),
+                ) ??
+                false);
       }).toList();
     }
+
+    filteredNotes.value = notes;
+  }
+
+  /// Get available categories in current notes
+  List<String> get availableCategories {
+    final categories = <String>{};
+    for (var note in allNotes) {
+      if (note.category != null) {
+        categories.add(note.category!);
+      }
+    }
+    return categories.toList();
   }
 
   /// Delete a note

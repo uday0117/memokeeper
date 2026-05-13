@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/constants/note_colors.dart';
 import '../core/utils/date_formatter.dart';
 import '../data/models/note_model.dart';
 
@@ -21,6 +22,8 @@ class NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hasColor = note.colorCode != null;
+    final gradient = NoteColors.getGradient(note.colorCode, isDark: isDark);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -30,18 +33,23 @@ class NoteCard extends StatelessWidget {
         color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            gradient: hasColor ? gradient : null,
+            color: hasColor ? null : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
             border: note.isPinned
                 ? Border.all(
-                    color: Theme.of(context).primaryColor.withOpacity(0.3),
+                    color: hasColor
+                        ? Colors.white.withOpacity(0.5)
+                        : Theme.of(context).primaryColor.withOpacity(0.3),
                     width: 2,
                   )
                 : null,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.2 : 0.08),
-                blurRadius: 12,
+                color: hasColor
+                    ? Color(note.colorCode!).withOpacity(0.3)
+                    : Colors.black.withOpacity(isDark ? 0.2 : 0.08),
+                blurRadius: hasColor ? 16 : 12,
                 offset: const Offset(0, 4),
               ),
             ],
@@ -91,10 +99,11 @@ class NoteCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           note.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             letterSpacing: -0.5,
+                            color: hasColor ? Colors.white : null,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -111,38 +120,171 @@ class NoteCard extends StatelessWidget {
                                 ? Icons.push_pin_rounded
                                 : Icons.push_pin_outlined,
                             color: note.isPinned
-                                ? Theme.of(context).primaryColor
-                                : Colors.grey[400]!,
+                                ? (hasColor
+                                      ? Colors.white
+                                      : Theme.of(context).primaryColor)
+                                : (hasColor
+                                      ? Colors.white.withOpacity(0.7)
+                                      : Colors.grey[400]!),
                             onPressed: onPin,
+                            hasColoredBackground: hasColor,
                           ),
                           const SizedBox(width: 4),
                           _buildActionButton(
                             context,
                             icon: Icons.delete_outline_rounded,
-                            color: Colors.red[400]!,
+                            color: hasColor
+                                ? Colors.white.withOpacity(0.9)
+                                : Colors.red[400]!,
                             onPressed: onDelete,
+                            hasColoredBackground: hasColor,
                           ),
                         ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-
+                  // Category and Tags
+                  if (note.category != null ||
+                      (note.tags != null && note.tags!.isNotEmpty))
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        // Category badge
+                        if (note.category != null) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: hasColor
+                                  ? Colors.white.withOpacity(0.25)
+                                  : (isDark
+                                        ? Colors.white.withOpacity(0.1)
+                                        : Colors.grey[200]),
+                              borderRadius: BorderRadius.circular(8),
+                              border: hasColor
+                                  ? Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                      width: 1,
+                                    )
+                                  : null,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  NoteCategories.getCategoryByName(
+                                        note.category,
+                                      )?.icon ??
+                                      Icons.label_rounded,
+                                  size: 12,
+                                  color: hasColor
+                                      ? Colors.white
+                                      : (isDark
+                                            ? Colors.grey[400]
+                                            : Colors.grey[600]),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  note.category!,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: hasColor
+                                        ? Colors.white
+                                        : (isDark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600]),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        // Tag badges
+                        if (note.tags != null)
+                          ...note.tags!.map(
+                            (tag) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: hasColor
+                                    ? Colors.white.withOpacity(0.2)
+                                    : (isDark
+                                          ? Colors.white.withOpacity(0.08)
+                                          : Colors.grey[100]),
+                                borderRadius: BorderRadius.circular(8),
+                                border: hasColor
+                                    ? Border.all(
+                                        color: Colors.white.withOpacity(0.3),
+                                        width: 1,
+                                      )
+                                    : null,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.tag,
+                                    size: 10,
+                                    color: hasColor
+                                        ? Colors.white.withOpacity(0.9)
+                                        : (isDark
+                                              ? Colors.grey[500]
+                                              : Colors.grey[500]),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    tag,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: hasColor
+                                          ? Colors.white.withOpacity(0.9)
+                                          : (isDark
+                                                ? Colors.grey[500]
+                                                : Colors.grey[500]),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  if (note.category != null ||
+                      (note.tags != null && note.tags!.isNotEmpty))
+                    const SizedBox(height: 12),
                   // Content preview
                   if (note.content.isNotEmpty) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withOpacity(0.05)
-                            : Colors.grey[100],
+                        color: hasColor
+                            ? Colors.white.withOpacity(0.2)
+                            : (isDark
+                                  ? Colors.white.withOpacity(0.05)
+                                  : Colors.grey[100]),
                         borderRadius: BorderRadius.circular(12),
+                        border: hasColor
+                            ? Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1,
+                              )
+                            : null,
                       ),
                       child: Text(
                         note.content,
                         style: TextStyle(
                           fontSize: 14,
-                          color: isDark ? Colors.grey[400] : Colors.grey[700],
+                          color: hasColor
+                              ? Colors.white.withOpacity(0.95)
+                              : (isDark ? Colors.grey[400] : Colors.grey[700]),
                           height: 1.5,
                         ),
                         maxLines: 3,
@@ -162,10 +304,18 @@ class NoteCard extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withOpacity(0.1)
-                              : Colors.grey[200],
+                          color: hasColor
+                              ? Colors.white.withOpacity(0.2)
+                              : (isDark
+                                    ? Colors.white.withOpacity(0.1)
+                                    : Colors.grey[200]),
                           borderRadius: BorderRadius.circular(8),
+                          border: hasColor
+                              ? Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1,
+                                )
+                              : null,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -173,18 +323,22 @@ class NoteCard extends StatelessWidget {
                             Icon(
                               Icons.schedule_rounded,
                               size: 14,
-                              color: isDark
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
+                              color: hasColor
+                                  ? Colors.white.withOpacity(0.9)
+                                  : (isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600]),
                             ),
                             const SizedBox(width: 6),
                             Text(
                               DateFormatter.getRelativeTime(note.updatedAt),
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
+                                color: hasColor
+                                    ? Colors.white.withOpacity(0.9)
+                                    : (isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600]),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -201,17 +355,18 @@ class NoteCard extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Theme.of(context).primaryColor.withOpacity(0.2),
-                                Theme.of(context).primaryColor.withOpacity(0.1),
-                              ],
-                            ),
+                            color: hasColor
+                                ? Colors.white.withOpacity(0.25)
+                                : Theme.of(
+                                    context,
+                                  ).primaryColor.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: Theme.of(
-                                context,
-                              ).primaryColor.withOpacity(0.3),
+                              color: hasColor
+                                  ? Colors.white.withOpacity(0.4)
+                                  : Theme.of(
+                                      context,
+                                    ).primaryColor.withOpacity(0.3),
                             ),
                           ),
                           child: Row(
@@ -220,14 +375,18 @@ class NoteCard extends StatelessWidget {
                               Icon(
                                 Icons.notifications_active_rounded,
                                 size: 14,
-                                color: Theme.of(context).primaryColor,
+                                color: hasColor
+                                    ? Colors.white
+                                    : Theme.of(context).primaryColor,
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 DateFormatter.formatDate(note.reminderDate!),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Theme.of(context).primaryColor,
+                                  color: hasColor
+                                      ? Colors.white
+                                      : Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -251,6 +410,7 @@ class NoteCard extends StatelessWidget {
     required IconData icon,
     required Color color,
     required VoidCallback onPressed,
+    bool hasColoredBackground = false,
   }) {
     return Material(
       color: Colors.transparent,
@@ -260,8 +420,13 @@ class NoteCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: hasColoredBackground
+                ? Colors.white.withOpacity(0.2)
+                : color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
+            border: hasColoredBackground
+                ? Border.all(color: Colors.white.withOpacity(0.3), width: 1)
+                : null,
           ),
           child: Icon(icon, size: 18, color: color),
         ),

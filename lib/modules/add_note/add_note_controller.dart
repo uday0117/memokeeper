@@ -23,6 +23,12 @@ class AddNoteController extends GetxController {
   final RxString noteId = ''.obs;
   final RxBool isSaving = false.obs;
 
+  // New organization fields
+  final Rxn<String> selectedCategory = Rxn<String>();
+  final RxList<String> tags = <String>[].obs;
+  final Rxn<int> selectedColorCode = Rxn<int>();
+  final tagController = TextEditingController();
+
   @override
   void onInit() {
     super.onInit();
@@ -33,6 +39,7 @@ class AddNoteController extends GetxController {
   void onClose() {
     titleController.dispose();
     contentController.dispose();
+    tagController.dispose();
     super.onClose();
   }
 
@@ -45,6 +52,9 @@ class AddNoteController extends GetxController {
       titleController.text = args.title;
       contentController.text = args.content;
       reminderDate.value = args.reminderDate;
+      selectedCategory.value = args.category;
+      tags.value = args.tags ?? [];
+      selectedColorCode.value = args.colorCode;
     }
   }
 
@@ -72,6 +82,9 @@ class AddNoteController extends GetxController {
             ? _hiveService.getNoteById(id)!.isPinned
             : false,
         reminderDate: reminderDate.value,
+        category: selectedCategory.value,
+        tags: tags.isNotEmpty ? tags : null,
+        colorCode: selectedColorCode.value,
       );
 
       if (isEditMode.value) {
@@ -149,6 +162,30 @@ class AddNoteController extends GetxController {
   /// Clear reminder
   void clearReminder() {
     reminderDate.value = null;
+  }
+
+  /// Add tag
+  void addTag(String tag) {
+    final trimmedTag = tag.trim();
+    if (trimmedTag.isNotEmpty && !tags.contains(trimmedTag)) {
+      tags.add(trimmedTag);
+      tagController.clear();
+    }
+  }
+
+  /// Remove tag
+  void removeTag(String tag) {
+    tags.remove(tag);
+  }
+
+  /// Set category
+  void setCategory(String? category) {
+    selectedCategory.value = category;
+  }
+
+  /// Set color
+  void setColor(int? colorCode) {
+    selectedColorCode.value = colorCode;
   }
 
   /// Validate title

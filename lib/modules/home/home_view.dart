@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/constants/note_colors.dart';
+import '../../core/controllers/theme_controller.dart';
 import '../../data/models/note_model.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/empty_state.dart';
@@ -14,6 +16,7 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeController = Get.find<ThemeController>();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -53,19 +56,26 @@ class HomeView extends GetView<HomeController> {
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                child: Obx(
+                  () => IconButton(
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        themeController.isDarkMode.value
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        color: Theme.of(context).primaryColor,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.settings_rounded,
-                      color: Theme.of(context).primaryColor,
-                    ),
+                    onPressed: () => themeController.toggleTheme(),
+                    tooltip: themeController.isDarkMode.value
+                        ? 'Switch to Light Mode'
+                        : 'Switch to Dark Mode',
                   ),
-                  onPressed: () => Get.toNamed(AppRoutes.settings),
                 ),
               ),
             ],
@@ -73,6 +83,9 @@ class HomeView extends GetView<HomeController> {
 
           // Search bar
           SliverToBoxAdapter(child: _buildSearchBar(context)),
+
+          // Category filters
+          SliverToBoxAdapter(child: _buildCategoryFilters(context)),
 
           // Notes list or empty state
           Obx(() {
@@ -198,35 +211,174 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  /// Build premium FAB
-  Widget _buildFAB(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.8),
+  /// Build vibrant category filter chips
+  Widget _buildCategoryFilters(BuildContext context) {
+    return Obx(() {
+      // Don't show if no notes
+      if (controller.allNotes.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Container(
+        height: 50,
+        margin: const EdgeInsets.only(bottom: 8),
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            // All Notes chip
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildFilterChip(
+                context,
+                label: 'All',
+                icon: Icons.grid_view_rounded,
+                isSelected: controller.selectedCategory.value == null,
+                onTap: () => controller.filterByCategory(null),
+                gradient: null,
+              ),
+            ),
+
+            // Category chips
+            ...NoteCategories.categories.map((category) {
+              final categoryNotes = controller.allNotes
+                  .where((note) => note.category == category.name)
+                  .length;
+
+              if (categoryNotes == 0) {
+                return const SizedBox.shrink();
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildFilterChip(
+                  context,
+                  label: '${category.name} ($categoryNotes)',
+                  icon: category.icon,
+                  isSelected:
+                      controller.selectedCategory.value == category.name,
+                  onTap: () => controller.filterByCategory(category.name),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(category.colorCode),
+                      Color(category.colorCode).withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: FloatingActionButton.extended(
-        onPressed: _addNote,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        icon: const Icon(Icons.add_rounded, size: 24),
-        label: const Text(
-          'New Note',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      );
+    });
+  }
+
+  /// Build individual filter chip
+  Widget _buildFilterChip(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+    Gradient? gradient,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? (gradient ??
+                    LinearGradient(
+                      colors: [
+                        Theme.of(context).primaryColor,
+                        Theme.of(context).primaryColor.withOpacity(0.8),
+                      ],
+                    ))
+              : null,
+          color: isSelected
+              ? null
+              : (Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF1E1E1E)
+                    : Colors.white),
+          borderRadius: BorderRadius.circular(25),
+          border: isSelected
+              ? null
+              : Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.3),
+                  width: 1.5,
+                ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color:
+                        (gradient != null
+                                ? gradient.colors.first
+                                : Theme.of(context).primaryColor)
+                            .withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : Theme.of(context).primaryColor,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected
+                    ? Colors.white
+                    : (Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : const Color(0xFF424242)),
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 13,
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  /// Build premium FAB
+  Widget _buildFAB(BuildContext context) {
+    return FloatingActionButton.extended(
+      onPressed: _addNote,
+      elevation: 8,
+      backgroundColor: Theme.of(context).primaryColor,
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.edit_note_rounded,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+      label: const Text(
+        'New Note',
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
+          letterSpacing: 0.5,
+          color: Colors.white,
+        ),
+      ),
+      extendedPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
     );
   }
 
