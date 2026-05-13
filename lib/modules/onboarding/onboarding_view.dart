@@ -37,7 +37,7 @@ class OnboardingView extends GetView<OnboardingController> {
                     style: TextButton.styleFrom(
                       backgroundColor: Theme.of(
                         context,
-                      ).primaryColor.withOpacity(0.1),
+                      ).primaryColor.withValues(alpha: 0.1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -124,8 +124,8 @@ class OnboardingView extends GetView<OnboardingController> {
                             color: controller.currentPage.value == index
                                 ? Theme.of(context).primaryColor
                                 : (isDark
-                                      ? Colors.white.withOpacity(0.3)
-                                      : Colors.grey.withOpacity(0.3)),
+                                      ? Colors.white.withValues(alpha: 0.3)
+                                      : Colors.grey.withValues(alpha: 0.3)),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -140,7 +140,9 @@ class OnboardingView extends GetView<OnboardingController> {
                         gradient: LinearGradient(
                           colors: [
                             Theme.of(context).primaryColor,
-                            Theme.of(context).primaryColor.withOpacity(0.8),
+                            Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(30),
@@ -148,7 +150,7 @@ class OnboardingView extends GetView<OnboardingController> {
                           BoxShadow(
                             color: Theme.of(
                               context,
-                            ).primaryColor.withOpacity(0.3),
+                            ).primaryColor.withValues(alpha: 0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -224,48 +226,48 @@ class _OnboardingCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: gradient.colors.first.withOpacity(0.4),
+              color: gradient.colors.first.withValues(alpha: 0.4),
               blurRadius: 30,
               offset: const Offset(0, 15),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(40.0),
+          padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Icon with circle background
               Container(
-                padding: const EdgeInsets.all(40),
+                padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, size: 80, color: Colors.white),
+                child: Icon(icon, size: 70, color: Colors.white),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 40),
 
               // Title
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 26,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: -0.5,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               // Description
               Text(
                 description,
                 style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white.withOpacity(0.95),
-                  height: 1.6,
+                  fontSize: 15,
+                  color: Colors.white.withValues(alpha: 0.95),
+                  height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
