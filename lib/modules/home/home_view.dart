@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../core/constants/note_colors.dart';
 import '../../core/controllers/theme_controller.dart';
 import '../../data/models/note_model.dart';
+import '../../data/services/admob_service.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/note_card.dart';
@@ -118,6 +120,21 @@ class HomeView extends GetView<HomeController> {
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
+      bottomNavigationBar: Obx(() {
+        final adService = AdMobService.to;
+
+        if (!adService.isBannerAdLoaded.value ||
+            adService.homeBannerAd == null) {
+          return const SizedBox.shrink();
+        }
+
+        return SafeArea(
+          child: SizedBox(
+            height: 50, // Standard banner height
+            child: AdWidget(ad: adService.homeBannerAd!),
+          ),
+        );
+      }),
       floatingActionButton: _buildFAB(context),
     );
   }

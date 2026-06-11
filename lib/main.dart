@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/controllers/theme_controller.dart';
 import 'core/theme/app_theme.dart';
+import 'data/services/admob_service.dart';
 import 'data/services/hive_service.dart';
 import 'data/services/notification_service.dart';
 import 'routes/app_pages.dart';
@@ -24,9 +26,14 @@ void main() async {
     // Initialize notification service
     await NotificationService().init();
 
+    // Initialize Mobile Ads SDK
+    await MobileAds.instance.initialize();
+
     // Initialize theme controller early
     Get.put(ThemeController());
 
+    // Initialize AdMob service
+    Get.put(AdMobService(), permanent: true);
     // Set preferred orientations
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,

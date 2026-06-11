@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:memokeeper/data/services/admob_service.dart';
 
 import '../../data/models/note_model.dart';
 import '../../data/services/hive_service.dart';
@@ -91,6 +92,9 @@ class AddNoteController extends GetxController {
         await _hiveService.updateNote(note);
       } else {
         await _hiveService.addNote(note);
+
+        // Count new note creations for interstitial ads
+        AdMobService.to.onNoteSaved();
       }
 
       // Schedule notification if reminder is set
