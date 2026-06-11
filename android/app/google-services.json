@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "549564344689",
+    "project_id": "memo-keeper-1e9ca",
+    "storage_bucket": "memo-keeper-1e9ca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:549564344689:android:951aef48d0071a31652ed0",
+        "android_client_info": {
+          "package_name": "com.uksolutions.memokeeper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDum-Li_N9xETvlIcroo9J_jmdIKQxYnK0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
